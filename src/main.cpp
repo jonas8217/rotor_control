@@ -367,7 +367,7 @@ int main(int argc, char *argv[]) {
 
         get_angles_100(angle_output);
         printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-        set_motor_direction(0,0,0,1);
+        set_motor_direction(0,0,1,0);
         set_motor_power(0,40);
 
         int t = 8;
