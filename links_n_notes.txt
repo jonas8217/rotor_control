@@ -1,0 +1,5 @@
+UART: https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/
+
+To move motors:
+ROTn_CMD_MOTORS & ROTn_CMD_POWER
+
