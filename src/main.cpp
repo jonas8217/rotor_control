@@ -20,7 +20,7 @@
 #define TRANSMIT_MSG_LEN 13
 #define NOMINAL_RETURN_MSG_BYTES 12
 
-bool DEBUG = true;
+#define DEBUG 1
 
 int SERIAL_PORT;
 uint8_t READ_BUF[MAX_RETURN_MSG_LEN];
@@ -275,11 +275,7 @@ void set_motor_direction(bool L, bool R, bool U, bool D) { // TODO might change 
 
     setup_write_buffer_for_input(CMD_MOTORS);
 
-    std::cout << (L<<0) << (R<<1) << (U<<2) << (D<<3) << std::endl;
-
     uint8_t cmd_byte = ((L<<0) + (R<<1) + (U<<2) + (D<<3));
-
-    std::cout << (int)cmd_byte << std::endl;
 
     WRITE_BUF[1] = cmd_byte;
 
@@ -295,10 +291,21 @@ void set_motor_power(int p1, int p2) {
     send_recv(CMD_POWER, NOMINAL_RETURN_MSG_BYTES);
 }
 
-void generate_motor_commands(double* angle_input, int* direction_command, int* motor_power) { // TODO create other functions to validate currently chosen input/output format
-    
+int sign(double val) {
+    if (val > 0) {
+        return 1;
+    } 
+    else if (val < 0) {
+        return -1;
+    }
+    return 0;
 }
 
+void generate_motor_commands(double control_input[2], int* direction_command, int* motor_power) { // TODO create other functions to validate currently chosen input/output format
+    
+    direction_command[0] = sign(control_input[0]); direction_command[1] = sign(control_input[1]);
+    motor_power[0] = std::abs(control_input[0]); motor_power[1] = std::abs(control_input[1]);
+}
 
 int main(int argc, char *argv[]) { 
 
@@ -309,7 +316,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    if(argc == 2) { // test for basic commands
+    if(argc > 1) { // test for commands
         if (std::strcmp(argv[1], "reset") == 0) {
             basic_message_get_debug(CMD_RESTART_DEVICE);
             printf("Reset sent successfully\n");
@@ -323,6 +330,14 @@ int main(int argc, char *argv[]) {
             basic_message_get_debug(CMD_STOP);
             printf("Stop sent successfully\n");
         }
+        else if (std::strcmp(argv[1], "set-position")  == 0) {
+            double angles[2];
+            angles[0] = std::stod(argv[2]);
+            angles[1] = std::stod(argv[3]);
+            set_angles(angles);
+            printf("angle set successfully\n");
+        }
+
     }
     else { // do control loop ... for now testing area
         double angle_output[2];
