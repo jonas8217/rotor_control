@@ -21,6 +21,7 @@
 #define NOMINAL_RETURN_MSG_BYTES 12
 
 #define DEBUG 1
+#define DO_CONTROL 0
 
 int SERIAL_PORT;
 uint8_t READ_BUF[MAX_RETURN_MSG_LEN];
@@ -338,8 +339,11 @@ int main(int argc, char *argv[]) {
             printf("angle set successfully\n");
         }
 
+    } 
+    else if (DO_CONTROL) {
+
     }
-    else { // do control loop ... for now testing area
+    else { // Testing area
         double angle_output[2];
         
 
