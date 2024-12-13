@@ -231,8 +231,6 @@ void set_soft_hard(bool s1, bool s2) {
 
 void set_angles(double* angle_input) {
 
-    int a1 = angle_input[0] * 10 + 3600;
-
     // angleToSend = IntToString(360 * divisor + (desiredAngle * divisor))
     std::string s1 = std::to_string((int)(360 * 10 + (angle_input[0] *10))); // do the math and convert to string
     std::string s2 = std::to_string((int)(360 * 10 + (angle_input[1] *10)));
@@ -324,7 +322,12 @@ int main(int argc, char *argv[]) {
         else if (std::strcmp(argv[1], "read")  == 0) {
             double angle_output[2];
             get_angles_100(angle_output);
-            printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
+            if (DEBUG) {
+                printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
+            }
+            else {
+                printf("%.2f,%.2f",angle_output[0], angle_output[1]);
+            }
         }
         else if (std::strcmp(argv[1], "stop")  == 0) {
             basic_message_get_debug(CMD_STOP);
@@ -337,6 +340,13 @@ int main(int argc, char *argv[]) {
             set_angles(angles);
             printf("angle set successfully\n");
         }
+        else if (std::strcmp(argv[1], "set-power")  == 0) {
+            int p1 = std::stoi(argv[2]);
+            int p2 = std::stoi(argv[3]);
+            set_motor_power(p1,p2);
+            printf("power set successfully\n");
+        }
+
 
     }
     else { // do control loop ... for now testing area
@@ -380,20 +390,20 @@ int main(int argc, char *argv[]) {
         // sleep(0.1);
         // basic_message_get_debug(CMD_GET_SOFT_HARD);
 
-        get_angles_100(angle_output);
-        printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-        set_motor_direction(0,0,1,0);
-        set_motor_power(0,40);
+        // get_angles_100(angle_output);
+        // printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
+        // set_motor_direction(0,0,1,0);
+        // set_motor_power(0,40);
 
-        int t = 8;
-        printf("sleeping for %i seconds\n", t);
-        sleep(t);
+        // int t = 8;
+        // printf("sleeping for %i seconds\n", t);
+        // sleep(t);
 
-        get_angles_100(angle_output);
-        printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
+        // get_angles_100(angle_output);
+        // printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
 
-        printf("\nStopping rotor\n");
-        stop_rotor();
+        // printf("\nStopping rotor\n");
+        // stop_rotor();
     }
 
     return 0;
