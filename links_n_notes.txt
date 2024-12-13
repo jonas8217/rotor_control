@@ -3,3 +3,6 @@ UART: https://blog.mbedded.ninja/programming/operating-systems/linux/linux-seria
 To move motors:
 ROTn_CMD_MOTORS & ROTn_CMD_POWER
 
+Other sources for the protocol:
+github.com/jaidenfe/rot2proG
+https://ryeng.name/blog/3

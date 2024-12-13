@@ -351,6 +351,9 @@ int main(int argc, char *argv[]) {
 
         else if (DO_CONTROL) {
 
+    } 
+    else if (DO_CONTROL) {
+
     }
     else { // Testing area
         double angle_output[2];
