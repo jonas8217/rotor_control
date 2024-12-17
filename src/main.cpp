@@ -20,7 +20,7 @@
 #define TRANSMIT_MSG_LEN 13
 #define NOMINAL_RETURN_MSG_BYTES 12
 
-#define DEBUG 1
+#define DEBUG 0
 #define DO_CONTROL 0
 
 int SERIAL_PORT;
@@ -118,7 +118,9 @@ int setup_USB_UART_connection(struct termios *tty) {
         return -1;
     }
 
-    printf("USB-UART connection established\n");
+    if (DEBUG){
+        printf("USB-UART connection established\n");
+    }
 
     return 0;
 }
@@ -323,7 +325,7 @@ int main(int argc, char *argv[]) {
         else if (std::strcmp(argv[1], "read")  == 0) {
             double angle_output[2];
             get_angles_100(angle_output);
-            if (DEBUG) {
+            if (argc == 2) {
                 printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
             }
             else {
@@ -347,9 +349,6 @@ int main(int argc, char *argv[]) {
             set_motor_power(p1,p2);
             printf("power set successfully\n");
         }
-
-
-        else if (DO_CONTROL) {
 
     } 
     else if (DO_CONTROL) {
