@@ -197,8 +197,8 @@ void get_angles(double* angle_output) {
     // angle = StrToInt(receivedAngle) * divisor - 360 * divisor
     int a1 = READ_BUF[1+0]*1000 + READ_BUF[1+1]*100 + READ_BUF[1+2]*10 + READ_BUF[1+3]*1; // convert to integer
     int a2 = READ_BUF[6+0]*1000 + READ_BUF[6+1]*100 + READ_BUF[6+2]*10 + READ_BUF[6+3]*1;
-    angle_output[0] = (a1 - 3600) / (double)READ_BUF[ 5]; // do the math
-    angle_output[1] = (a2 - 3600) / (double)READ_BUF[10];
+    angle_output[0] = a1 / (double)READ_BUF[ 5] - 360.0; // do the math
+    angle_output[1] = a2 / (double)READ_BUF[10] - 360.0;
 }
 
 void get_angles_100(double* angle_output) { // unlike in CMD_GET_MOTOR_ANGLES the devisor is set to a constant 100, this makes room for one more byte of data for the angles
@@ -208,8 +208,8 @@ void get_angles_100(double* angle_output) { // unlike in CMD_GET_MOTOR_ANGLES th
     // angle = StrToInt(receivedAngle) * divisor - 360 * divisor
     int a1 = READ_BUF[1+0]*10000 + READ_BUF[1+1]*1000 + READ_BUF[1+2]*100 + READ_BUF[1+3]*10 + READ_BUF[1+4]*1; // convert to integer
     int a2 = READ_BUF[6+0]*10000 + READ_BUF[6+1]*1000 + READ_BUF[6+2]*100 + READ_BUF[6+3]*10 + READ_BUF[6+4]*1;
-    angle_output[0] = (a1 - 36000) / 100.0; // do the math
-    angle_output[1] = (a2 - 36000) / 100.0;
+    angle_output[0] = a1 / 100.0 - 360.0; // do the math
+    angle_output[1] = a2 / 100.0 - 360.0;
 }
 
 void setup_write_buffer_for_input(MSG_TYPE type) {
