@@ -328,7 +328,7 @@ int main(int argc, char *argv[]) {
             if (argc == 2) {
                 printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
             }
-            else {
+            else { // if another argument is given after "read" (any argument) print a stripped down version of the angles for good interfacing with other programs
                 printf("%.2f,%.2f",angle_output[0], angle_output[1]);
             }
         }
@@ -341,13 +341,26 @@ int main(int argc, char *argv[]) {
             angles[0] = std::stod(argv[2]);
             angles[1] = std::stod(argv[3]);
             set_angles(angles);
-            printf("angle set successfully\n");
+            printf("Angle set successfully\n");
         }
         else if (std::strcmp(argv[1], "set-power")  == 0) {
             int p1 = std::stoi(argv[2]);
             int p2 = std::stoi(argv[3]);
             set_motor_power(p1,p2);
-            printf("power set successfully\n");
+            printf("Power set successfully\n");
+        }
+        // This command has the possibilty of running the rotor against one of the motors internal endstops, this may lock up one of the two motors or possibly damage it
+        else if (std::strcmp(argv[1], "set-direction")  == 0) { 
+            if (argc != 3){
+                printf("Movement duration not provided, direction not set\n");    
+            }
+            int d = std::stoi(argv[2]);    // movement direction Left:0 Right:1 Up:2 Down:3
+            double t = std::stod(argv[2]); // time on seconds (decimal allowed)
+            set_motor_direction(d==0,d==1,d==2,d==3); // only one direction per message
+            printf("Direction set successfully, running for %.3f\n");
+            usleep((int)t*1000000); // Microsecond sleep
+            set_motor_direction(0,0,0,0); // Stop the motors
+            printf("Rotor stopped");
         }
 
     } 
