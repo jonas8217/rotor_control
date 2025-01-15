@@ -63,7 +63,7 @@ int setup_USB_UART_connection(struct termios *tty) {
     // https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/
 
     if (SERIAL_PORT < 0) {
-        printf("Error %i from open: %s\n", errno, strerror(errno));
+        printf("Error %i from open trying to open %s: %s\n", errno, PORT, strerror(errno));
         return -1;
     }
 
@@ -270,7 +270,7 @@ void set_motor_direction(bool L, bool R, bool U, bool D) { // TODO might change 
     // Either left or right and either up or down, alternatively all zero for stop
 
     if (L && R || U && R) {
-        printf("Cannot command both directions at once!");
+        printf("Cannot command opposite directions simultaneously!");
         return;
     }
 
@@ -357,7 +357,7 @@ int main(int argc, char *argv[]) {
             int d = std::stoi(argv[2]);    // movement direction Left:0 Right:1 Up:2 Down:3
             double t = std::stod(argv[2]); // time on seconds (decimal allowed)
             set_motor_direction(d==0,d==1,d==2,d==3); // only one direction per message
-            printf("Direction set successfully, running for %.3f\n");
+            printf("Direction set successfully, running for %.3f\n", t);
             usleep((int)t*1000000); // Microsecond sleep
             set_motor_direction(0,0,0,0); // Stop the motors
             printf("Rotor stopped");
@@ -383,6 +383,7 @@ int main(int argc, char *argv[]) {
         //     printf("ms duration: %lu \n", now-start);
         // }
         
+
         
         // double angle_output[2] = {0,0};
         // get_angles(angle_output);
