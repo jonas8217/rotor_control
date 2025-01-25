@@ -41,13 +41,13 @@ enum MSG_TYPE {
     CMD_POWER,                  // Set motors power (0-100%). (Applied immediately, without stoping current move)
 } msg_type;
 
-const bool MSG_HAS_INPUT[] = {0,0,1,0,0,1,0,0,1,1};
+const bool MSG_HAS_INPUT[] = {0,0,1,1,0,1,0,0,1,1};
 
 const uint8_t MSG_ARRAYS[][13] = {
     { 0x57,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1f,0x20 },
     { 0x57,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x6f,0x20 },
     { 0x57,0x00,0x00,0x00,0x00,0x0a,0x00,0x00,0x00,0x00,0x0a,0x2f,0x20 },
-    { 0x57,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xef,0x20 },
+    { 0x57,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xef,0x20 },
     { 0x57,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xa1,0x20 },
     { 0x57,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xa2,0x20 },
     { 0x57,0xef,0xbe,0xad,0xde,0x00,0x00,0x00,0x00,0x00,0x00,0xee,0x20 },
@@ -152,7 +152,9 @@ void recv(int expected_return_bytes) {
     
     int num_bytes = 0;
     if (expected_return_bytes > NOMINAL_RETURN_MSG_BYTES) {
-        printf("TODO, implement this functionality (reading more than 12 bytes per message)\n"); // the serial read should be set up to work with this, but it requires a little work in this implementation
+        for (int i = 0; i < expected_return_bytes / NOMINAL_RETURN_MSG_BYTES; i++) {
+            num_bytes += read(SERIAL_PORT, &READ_BUF + num_bytes, MAX_RETURN_MSG_LEN);
+        }
     } 
     else {
         num_bytes = read(SERIAL_PORT, &READ_BUF, MAX_RETURN_MSG_LEN);
@@ -167,7 +169,7 @@ void recv(int expected_return_bytes) {
 
     if (DEBUG) {
         printf("Recieved:     ");
-        for (int i = 0; i < expected_return_bytes; i++) {
+        for (int i = 0; i < num_bytes; i++) {
             printf("0x%02x ",READ_BUF[i]);
         }
         printf("\n");
@@ -179,6 +181,12 @@ void send_recv(MSG_TYPE type, int expected_return_bytes) {
     recv(expected_return_bytes);
 }
 
+void setup_write_buffer_for_input(MSG_TYPE type) {
+    for (int i = 0; i < TRANSMIT_MSG_LEN; i++) {
+        WRITE_BUF[i] = MSG_ARRAYS[type][i];
+    }
+}
+
 void basic_message_get_debug(MSG_TYPE type) {
     send_recv(type, NOMINAL_RETURN_MSG_BYTES);
     if (!DEBUG) { // will already be printed if debug is on
@@ -188,6 +196,31 @@ void basic_message_get_debug(MSG_TYPE type) {
         }
         printf("\n");
     }
+}
+
+void get_configuration(int index = -1) { // TODO load into the structs defined in settings_params_legacy (or a modification thereof)
+
+    if (index == -1) {
+        setup_write_buffer_for_input(CMD_CFG_GET);
+        WRITE_BUF[1] = 0; WRITE_BUF[2] = 0;
+        send_recv(CMD_CFG_GET, MAX_RETURN_MSG_LEN);
+        // TODO figure out which reading order the 4 bytes of the cfgFieldValue field has (assuming big endian)
+        //int max_field_id = ;
+
+        return;
+        for (int i = 0; i < sizeof(rotCfgFields); i++) {// TODO check sizeof or use "max_field_id" as aquired from the control box
+            rotCfgFields[i];
+            //WRITE_BUF[] = ;
+            send_recv(CMD_CFG_GET, MAX_RETURN_MSG_LEN);
+        }
+    }
+    else {
+        rotCfgFields[index];
+        //WRITE_BUF[] = ;
+        send_recv(CMD_CFG_GET, MAX_RETURN_MSG_LEN);
+    }
+
+
 }
 
 void get_angles(double* angle_output) {
@@ -210,12 +243,6 @@ void get_angles_100(double* angle_output) { // unlike in CMD_GET_MOTOR_ANGLES th
     int a2 = READ_BUF[6+0]*10000 + READ_BUF[6+1]*1000 + READ_BUF[6+2]*100 + READ_BUF[6+3]*10 + READ_BUF[6+4]*1;
     angle_output[0] = a1 / 100.0 - 360.0; // do the math
     angle_output[1] = a2 / 100.0 - 360.0;
-}
-
-void setup_write_buffer_for_input(MSG_TYPE type) {
-    for (int i = 0; i < TRANSMIT_MSG_LEN; i++) {
-        WRITE_BUF[i] = MSG_ARRAYS[type][i];
-    }
 }
 
 void get_soft_hard(bool s1, bool s2) {
@@ -250,7 +277,7 @@ void stop_rotor() {
     send_recv(CMD_STOP, NOMINAL_RETURN_MSG_BYTES);
 }
 
-void set_motor_direction(bool L, bool R, bool U, bool D) { // TODO might change input method 
+void set_motor_direction(bool L, bool R, bool U, bool D) {
     // sets the direction of the motor in which to apply the power setting from CMD_POWER
     
     // mmCmdStop = 0x00
@@ -306,124 +333,4 @@ void generate_motor_commands(double control_input[2], int* direction_command, in
     
     direction_command[0] = sign(control_input[0]); direction_command[1] = sign(control_input[1]);
     motor_power[0] = std::abs(control_input[0]); motor_power[1] = std::abs(control_input[1]);
-}
-
-int main(int argc, char *argv[]) { 
-
-    SERIAL_PORT = open(PORT, O_RDWR);
-
-    struct termios tty;
-    if (setup_USB_UART_connection(&tty) != 0) {
-        return -1;
-    }
-
-    if(argc > 1) { // test for commands
-        if (std::strcmp(argv[1], "reset") == 0) {
-            basic_message_get_debug(CMD_RESTART_DEVICE);
-            printf("Reset sent successfully\n");
-        }
-        else if (std::strcmp(argv[1], "read")  == 0) {
-            double angle_output[2];
-            get_angles_100(angle_output);
-            if (argc == 2) {
-                printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-            }
-            else { // if another argument is given after "read" (any argument) print a stripped down version of the angles for good interfacing with other programs
-                printf("%.2f,%.2f",angle_output[0], angle_output[1]);
-            }
-        }
-        else if (std::strcmp(argv[1], "stop")  == 0) {
-            basic_message_get_debug(CMD_STOP);
-            printf("Stop sent successfully\n");
-        }
-        else if (std::strcmp(argv[1], "set-position")  == 0) {
-            double angles[2];
-            angles[0] = std::stod(argv[2]);
-            angles[1] = std::stod(argv[3]);
-            set_angles(angles);
-            printf("Angle set successfully\n");
-        }
-        else if (std::strcmp(argv[1], "set-power")  == 0) {
-            int p1 = std::stoi(argv[2]);
-            int p2 = std::stoi(argv[3]);
-            set_motor_power(p1,p2);
-            printf("Power set successfully\n");
-        }
-        // This command has the possibilty of running the rotor against one of the motors internal endstops, this may lock up one of the two motors or possibly damage it
-        else if (std::strcmp(argv[1], "set-direction")  == 0) { 
-            if (argc != 3){
-                printf("Movement duration not provided, direction not set\n");    
-            }
-            int d = std::stoi(argv[2]);    // movement direction Left:0 Right:1 Up:2 Down:3
-            double t = std::stod(argv[2]); // time on seconds (decimal allowed)
-            set_motor_direction(d==0,d==1,d==2,d==3); // only one direction per message
-            printf("Direction set successfully, running for %.3f\n", t);
-            usleep((int)t*1000000); // Microsecond sleep
-            set_motor_direction(0,0,0,0); // Stop the motors
-            printf("Rotor stopped");
-        }
-
-    } 
-    else if (DO_CONTROL) {
-
-    }
-    else { // Testing area
-        double angle_output[2];
-        
-
-        // while (true) {
-        //     unsigned long start =
-        //         std::chrono::system_clock::now().time_since_epoch() / 
-        //         std::chrono::milliseconds(1);
-        //     get_angles_100(angle_output);
-        //     printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-        //     unsigned long now =
-        //         std::chrono::system_clock::now().time_since_epoch() / 
-        //         std::chrono::milliseconds(1);
-        //     printf("ms duration: %lu \n", now-start);
-        // }
-        
-
-        
-        // double angle_output[2] = {0,0};
-        // get_angles(angle_output);
-        // printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-
-        // get_angles_100(angle_output);
-        // printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-
-        // angle_output[0] = -24.5; angle_output[1] = 0.3;
-        // set_angles(angle_output);
-
-        // set_motor_direction(0,0,1,0);
-
-        // printf("\nWrite buffer: ");
-        // for (int i = 0; i < TRANSMIT_MSG_LEN; i++) {
-        //     printf("0x%02x ",WRITE_BUF[i]);
-        // }
-        // printf("\n");
-
-
-        // basic_message_get_debug(CMD_GET_SOFT_HARD);
-        // set_soft_hard(0,0);
-        // sleep(0.1);
-        // basic_message_get_debug(CMD_GET_SOFT_HARD);
-
-        // get_angles_100(angle_output);
-        // printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-        // set_motor_direction(0,0,1,0);
-        // set_motor_power(0,40);
-
-        // int t = 8;
-        // printf("sleeping for %i seconds\n", t);
-        // sleep(t);
-
-        // get_angles_100(angle_output);
-        // printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-
-        // printf("\nStopping rotor\n");
-        // stop_rotor();
-    }
-
-    return 0;
 }
