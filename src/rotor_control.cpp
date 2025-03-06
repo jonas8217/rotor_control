@@ -20,7 +20,7 @@
 #define TRANSMIT_MSG_LEN 13
 #define NOMINAL_RETURN_MSG_BYTES 12
 
-#define DEBUG 0
+#define DEBUG_COMMS 0
 #define DO_CONTROL 0
 
 int SERIAL_PORT;
@@ -118,7 +118,7 @@ int setup_USB_UART_connection(struct termios *tty) {
         return -1;
     }
 
-    if (DEBUG){
+    if (DEBUG_COMMS){
         printf("USB-UART connection established\n");
     }
 
@@ -132,7 +132,7 @@ void send(MSG_TYPE type) {
         }
     } 
     
-    if (DEBUG) {
+    if (DEBUG_COMMS) {
         printf("Transmitting: ");
         for (int i = 0; i < TRANSMIT_MSG_LEN; i++) {
             printf("0x%02x ",WRITE_BUF[i]);
@@ -167,7 +167,7 @@ void recv(int expected_return_bytes) {
         printf("Return message incomplete expected: %i, Recieved: %i\n",expected_return_bytes, num_bytes);
     }
 
-    if (DEBUG) {
+    if (DEBUG_COMMS) {
         printf("Recieved:     ");
         for (int i = 0; i < num_bytes; i++) {
             printf("0x%02x ",READ_BUF[i]);
@@ -189,7 +189,7 @@ void setup_write_buffer_for_input(MSG_TYPE type) {
 
 void basic_message_get_debug(MSG_TYPE type) {
     send_recv(type, NOMINAL_RETURN_MSG_BYTES);
-    if (!DEBUG) { // will already be printed if debug is on
+    if (!DEBUG_COMMS) { // will already be printed if debug is on
         printf("Read bytes:\n");
         for (int i = 0; i < NOMINAL_RETURN_MSG_BYTES; i++) {
             printf("0x%02x ",READ_BUF[i]);

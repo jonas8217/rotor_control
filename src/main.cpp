@@ -1,4 +1,4 @@
-# include "rotor_control.cpp"
+#include "rotor_control.cpp"
 
 int main(int argc, char *argv[]) {
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
             angles[0] = std::stod(argv[2]);
             angles[1] = std::stod(argv[3]);
             set_angles(angles);
-            printf("Angle set successfully\n");
+            printf("Angle %f %f set successfully\n", angles[0], angles[1]);
         }
         else if (std::strcmp(argv[1], "set-power")  == 0) {
             int p1 = std::stoi(argv[2]);
@@ -43,16 +43,16 @@ int main(int argc, char *argv[]) {
         }
         // This command has the possibilty of running the rotor against one of the motors internal endstops, this may lock up one of the two motors or possibly damage it
         else if (std::strcmp(argv[1], "set-direction")  == 0) { 
-            if (argc != 3){
+            if (argc != 4){
                 printf("Movement duration not provided, direction not set\n");    
             }
             int d = std::stoi(argv[2]);    // movement direction Left:0 Right:1 Up:2 Down:3
-            double t = std::stod(argv[2]); // time on seconds (decimal allowed)
+            double t = std::stod(argv[3]); // time on seconds (decimal allowed)
             set_motor_direction(d==0,d==1,d==2,d==3); // only one direction per message
             printf("Direction set successfully, running for %.3f\n", t);
             usleep((int)t*1000000); // Microsecond sleep
             set_motor_direction(0,0,0,0); // Stop the motors
-            printf("Rotor stopped");
+            printf("Rotor stopped\n");
         }
 
     } 
