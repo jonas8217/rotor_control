@@ -28,50 +28,50 @@ def main(argv):
     building_height = 10
     ground_altitude = 21
 
-    hours = 10
+    hours = 24
 
     pass_times = orb.get_next_passes(datetime.now(), hours, longitude, latitude, ground_altitude + building_height)
 
-    if len(pass_times) > 0:
-        rise,fall,max_el = pass_times[0]
+    for p in pass_times:
+        rise,fall,max_el = p
         
         delta = fall-rise
         # print(delta.seconds)
         # print(dir(delta))
         # exit()
 
-        points = 200 # points per second
+        points = 100 # points per second
 
         azs,els = [],[]
 
         for i in range(points):
             t = rise + timedelta(seconds=i * delta.seconds / points)
             az,el = orb.get_observer_look(t, longitude, latitude, ground_altitude + building_height)
-            azs.append(az)
-            els.append(el)
+            azs.append(float(az))
+            els.append(float(el))
 
         # print(azs)
         # print(els)
 
 
-    if True:
-    
-        xs = np.array([azs,els])
-
-        # print(xs.shape)
-        # exit()
+        if True:
         
-        from matplotlib import pyplot as plt
+            xs = np.array([azs,els])
 
-        # fig = plt.figure()
+            # print(xs.shape)
+            # exit()
+            
+            from matplotlib import pyplot as plt
 
-        # ax = fig.add_subplot(projection="3d")
-        fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-        # ax.axis("equal")
-        ax.plot(xs[0,:],xs[1,:], marker="_")
-        # ax.scatter(0,0,0, marker="X")
+            # fig = plt.figure()
 
-        plt.show()
+            # ax = fig.add_subplot(projection="3d")
+            fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+            # ax.axis("equal")
+            ax.plot(xs[0,:]*np.pi/180, 90-xs[1,:], marker=" ") # TODO
+            # ax.scatter(0,0,0, marker="X")
+
+            plt.show()
 
 
 if False:
