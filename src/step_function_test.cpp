@@ -35,16 +35,17 @@ int main(int argc, char *argv[]) {
     // --- START --- This section incapsulates one step response test
 
     std::ofstream data_file;
-    data_file.open((std::string)"test_data/" + "step_response_test_test" + ".csv");
+    data_file.open((std::string)"test_data/" + "step_response_" +  + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
 
     angles_setpoint[0] = 0;
     angles_setpoint[1] = 45;
     set_angles(angles_setpoint); // goto staring position
-    // TODO wait for it to be done
+    
     double angles[2];
     get_angles(angles);
     printf("Moving to setpoint %.2f, %.2f ...\n", angles_setpoint[0], angles_setpoint[1]);
+    // wait for it to be done moving
     while (abs(angles[0] - angles_setpoint[0]) > 1 || abs(angles[1] - angles_setpoint[1]) > 1) {
         sleep(5);
         get_angles(angles);
@@ -54,7 +55,6 @@ int main(int argc, char *argv[]) {
     p_el = 100;
     p_az = 100;
     set_motor_power(p_el,p_az); // set power to testing value (100%)
-    // Initial test to check distance covered for steady state
     
     printf("Waiting for 1 second to settle after moving\n");
     sleep(2); // wait for the rotor to settle
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
         // printf("Current time t: %f\n", t);
         // printf("p_el: %d, U: %d, D: %d\n", p_el, U, D);
         data_file << t << "," << p_az*(L-R) << "," << p_el*(U-D) << "," << angles[0] << "," << angles[1] << std::endl;
-        sleep(0.05); // TODO make sure interval is long enough
+        sleep(0.01); // TODO make sure interval is long enough
     }
     
     U = 0;

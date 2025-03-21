@@ -6,3 +6,17 @@ ROTn_CMD_MOTORS & ROTn_CMD_POWER
 Other sources for the protocol:
 github.com/jaidenfe/rot2proG
 https://ryeng.name/blog/3
+
+angular rates at 100% power:
+azimuth:    
+elevation:  
+
+response time/message rate:
+
+
+motor command to action delay:
+
+
+angle offsets:
+azimuth:    
+elevation:  
