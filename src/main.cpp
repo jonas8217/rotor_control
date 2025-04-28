@@ -1,19 +1,41 @@
 #include "rotor_control.cpp"
 
-int main(int argc, char *argv[]) {
-    SERIAL_PORT = open(PORT, O_RDWR);
+void print_help() {
+  printf("Commands:\n");
+  printf("  restart\n");
+  printf("  read\n");
+  printf("  stop\n");
+  printf("  set-angles [az] [el]\n");
+  printf("  set-power  [az] [el]\n");
+  // set-direction
+  // get-config      
+}
 
-    struct termios tty;
-    if (setup_USB_UART_connection(&tty) != 0) {
-        return -1;
-    }
+struct termios tty;
+
+bool setup() {
+  SERIAL_PORT = open(PORT, O_RDWR);
+
+  if (setup_USB_UART_connection(&tty) != 0) {
+      return -1;
+  }
+  return 0;
+}
+
+int main(int argc, char *argv[]) {
+
 
     if (argc > 1) {  // test for commands
-        if (std::strcmp(argv[1], "reset") == 0) {
+        if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "help") == 0) {
+            print_help();
+        
+        } else if (std::strcmp(argv[1], "reset") == 0) {
+            if (setup()) return -1;
             basic_message_get_debug(CMD_RESTART_DEVICE);
             printf("Reset sent successfully\n");
 
         } else if (std::strcmp(argv[1], "read") == 0) {
+            if (setup()) return -1;
             double angle_output[2];
             get_angles_100(angle_output);
             if (argc == 2) {
@@ -23,10 +45,12 @@ int main(int argc, char *argv[]) {
             }
 
         } else if (std::strcmp(argv[1], "stop") == 0) {
+            if (setup()) return -1;
             basic_message_get_debug(CMD_STOP);
             printf("Stop sent successfully\n");
 
         } else if (std::strcmp(argv[1], "set-angles") == 0) {
+            if (setup()) return -1;
             double angles[2];
             angles[0] = std::stod(argv[2]);
             angles[1] = std::stod(argv[3]);
@@ -34,6 +58,7 @@ int main(int argc, char *argv[]) {
             printf("Angle %.2f %.2f set successfully\n", angles[0], angles[1]);
 
         } else if (std::strcmp(argv[1], "set-power") == 0) {
+            if (setup()) return -1;
             int p1 = std::stoi(argv[2]);
             int p2 = std::stoi(argv[3]);
             set_motor_power(p1, p2);
@@ -44,6 +69,7 @@ int main(int argc, char *argv[]) {
             if (argc != 4) {
                 printf("Movement duration not provided, direction not set\n");
             }
+            if (setup()) return -1;
             int d = std::stoi(argv[2]);                           // movement direction Left:0 Right:1 Up:2 Down:3
             double t = std::stod(argv[3]);                        // time on seconds (decimal allowed)
             set_motor_direction(d == 0, d == 1, d == 2, d == 3);  // only one direction per message
@@ -56,11 +82,15 @@ int main(int argc, char *argv[]) {
             if (argc != 3) {
                 printf("missing config field value\n");
             }
+            if (setup()) return -1;
             get_configuration(std::stoi(argv[2]));
+        } else {
+          print_help();
         }
 
     } else if (DO_CONTROL) {
     } else {  // Testing area
+    	print_help();
         double angle_output[2];
 
         // while (true) {
