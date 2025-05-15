@@ -24,6 +24,7 @@
 #define DO_CONTROL 0
 
 int SERIAL_PORT;
+struct termios tty_;
 uint8_t READ_BUF[MAX_RETURN_MSG_LEN];
 uint8_t WRITE_BUF[TRANSMIT_MSG_LEN];
 
@@ -55,10 +56,14 @@ const uint8_t MSG_ARRAYS[][13] = {
     {0x57, 0x00, 0x00, 0x00, 0x00, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x42, 0xf7, 0x20}   // CMD_POWER
 };
 
-int setup_USB_UART_connection(struct termios* tty) {
+int setup_USB_UART_connection() {
+    SERIAL_PORT = open(PORT, O_RDWR);
+    
     // Info from this blog
     // https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/
 
+    struct termios* tty = &tty_;
+    
     if (SERIAL_PORT < 0) {
         printf("Error %i from open trying to open %s: %s\n", errno, PORT, strerror(errno));
         return -1;

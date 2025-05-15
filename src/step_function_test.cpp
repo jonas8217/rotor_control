@@ -9,31 +9,8 @@ double angles_setpoint[2];
 int p_az,p_el = 0; // power in azimuth and elevation
 int L,R,U,D = 0; // directions to move: left, right, up, down
 
-int main(int argc, char *argv[]) {
-
-    SERIAL_PORT = open(PORT, O_RDWR);
-
-    struct termios tty;
-    if (setup_USB_UART_connection(&tty) != 0) {
-        return -1;
-    }
-
-
-
-    // Do zigzaggin pattern for optimal time utilization and gather the data all at the same time (maybe warm up the system first)
-    // zigzag pattern UP RIGHT UP LEFT UP ... UP LEFT DOWN RIGHT DOWN LEFT DOWN ...
-
-    //1 Set power 100 (and lower for more testing?)
-    //2 goto staring position for the measurements
-    //3 do a measurement moving in the indicated direction
-    //4 goto the next setpoint which should be relatively close to the position the next measurement should be made from (TODO Need to figure out how far the rotor should move for steady state)
-    // repeat from step 3 until the upper bound for elevation has been reached
-
-    set_motor_power(80,80); // set initial power to go to starting position
-
-
-    // --- START --- This section incapsulates one step response test
-
+void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bool U, bool D) {
+    
     time_t rawtime;
     struct tm * timeinfo;
     char buffer[80];
@@ -48,8 +25,10 @@ int main(int argc, char *argv[]) {
     data_file.open((std::string)"test_data/" + "step_response_" + buffer + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
 
-    angles_setpoint[0] = 0;
-    angles_setpoint[1] = 45;
+    
+    angles_setpoint[0] = az_setpoint;
+    angles_setpoint[1] = el_setpoint;
+    set_motor_power(80,80); // set initial power to go to starting position
     set_angles(angles_setpoint); // goto staring position
 
     double angles[2];
@@ -66,8 +45,8 @@ int main(int argc, char *argv[]) {
     p_az = 100;
     set_motor_power(p_el,p_az); // set power to testing value (100%)
 
-    printf("Waiting for 1 second to settle after moving\n");
-    sleep(2); // wait for the rotor to settle
+    printf("Waiting for 4 second to settle after moving\n");
+    sleep(4); // wait for the rotor to settle
 
     // begin collecting data
     get_angles_100(angles);
@@ -76,7 +55,6 @@ int main(int argc, char *argv[]) {
     double t = 0.0;
     data_file << 0 << "," << p_az*(L-R) << "," << p_el*(U-D) << "," << angles[0] << "," << angles[1] << std::endl;
 
-    U = 1;
     set_motor_direction(L,R,U,D); // start moving up
     // collect data points in regular intervals
     while (t < 5) {
@@ -95,7 +73,30 @@ int main(int argc, char *argv[]) {
     U = 0;
     set_motor_direction(L,R,U,D); // stop the rotor after 5 seconds
     data_file.close();
-    // --- END ---
+}
+
+int main(int argc, char *argv[]) {
+
+    if (setup_USB_UART_connection() != 0) return -1;
+
+    // Do zigzaggin pattern for optimal time utilization and gather the data all at the same time (maybe warm up the system first)
+    // zigzag pattern UP RIGHT UP LEFT UP ... UP LEFT DOWN RIGHT DOWN LEFT DOWN ...
+
+    //1 Set power 100 (and lower for more testing?)
+    //2 goto staring position for the measurements
+    //3 do a measurement moving in the indicated direction
+    //4 goto the next setpoint which should be relatively close to the position the next measurement should be made from (TODO Need to figure out how far the rotor should move for steady state)
+    // repeat from step 3 until the upper bound for elevation has been reached
+
+    //               Az, El, L, R, U, D
+    do_step_response( 0, 90, 0, 0, 1, 0); // Pointing up      , moving backwards (positive elevation)
+    do_step_response( 0, 90, 0, 0, 0, 1); // Pointing up      , moving forwards (negative elevation)
+    do_step_response( 0, 90, 1, 0, 0, 0); // Pointing up      , moving left/clockwise(from above, negative azimuth)
+    do_step_response( 0, 90, 0, 1, 0, 0); // Pointing up      , moving right/counter-clockwise(from above, positive azimuth)
+    do_step_response( 0,  0, 0, 0, 1, 0); // Pointing forwards, moving up (positive elevation)
+    // cannot move downwards
+    do_step_response( 0,  0, 1, 0, 0, 0); // Pointing forwards, moving left/clockwise(from above, negative azimuth)
+    do_step_response( 0,  0, 0, 1, 0, 0); // Pointing forwards, moving right/counter-clockwise(from above, positive azimuth)
 
 
     return 0;

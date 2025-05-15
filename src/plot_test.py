@@ -1,10 +1,14 @@
 from matplotlib import pyplot as plt
-import csv
+# import csv
 import numpy as np
 
+import sys
 
+file_name = "step_response_test_test.csv"
+if len(sys.argv) > 1:
+    file_name = sys.argv[1]
 
-with open('test_data/step_response_test_test.csv') as csvfile:
+with open('test_data/' + file_name) as csvfile:
     lines = csvfile.read().strip().split("\n")
     headers = lines[0].split(",")
     lines = lines[1:]
@@ -25,7 +29,5 @@ ax2 = ax1.twinx()
 
 ax2.set_ylabel("angle [degrees]", color="r")
 ax2.plot(table[:,0],table[:,4], marker="",color="r")
-
-
 
 plt.show()
