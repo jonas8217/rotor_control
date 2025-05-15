@@ -77,7 +77,9 @@ int main(int argc, char *argv[]) {
         // printf("Current time t: %f\n", t);
         // printf("p_el: %d, U: %d, D: %d\n", p_el, U, D);
         data_file << t << "," << p_az*(L-R) << "," << p_el*(U-D) << "," << angles[0] << "," << angles[1] << std::endl;
-        sleep(0.01); // TODO make sure interval is long enough
+
+        // get_angles is blocking so no need to sleep
+        // sleep(0.01); // TODO make sure interval is long enough
     }
 
     U = 0;

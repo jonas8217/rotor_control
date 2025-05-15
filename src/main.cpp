@@ -92,9 +92,7 @@ int main(int argc, char *argv[]) {
 
         while (true) {
             unsigned long start = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-            printf("test1\n");
             get_angles_100(angle_output);
-            printf("test2\n");
             printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
             unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
             printf("ms duration: %lu \n", now - start);

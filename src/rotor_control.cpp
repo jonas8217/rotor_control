@@ -20,7 +20,7 @@
 #define TRANSMIT_MSG_LEN 13
 #define NOMINAL_RETURN_MSG_BYTES 12
 
-#define DEBUG_COMMS 1
+#define DEBUG_COMMS 0
 #define DO_CONTROL 0
 
 int SERIAL_PORT;
