@@ -22,7 +22,7 @@ void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bo
     std::string str(buffer);
 
     std::ofstream data_file;
-    data_file.open((std::string)"test_data/" + "step_response_" + buffer + ".csv");
+    data_file.open((std::string)"test_data/" + buffer + "_Az_" + std::to_string(R) + "_El_" + std::to_string(U) + "_" + std::to_string((int)az_setpoint) + "_" + std::to_string((int)el_setpoint) + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
 
     
