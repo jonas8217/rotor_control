@@ -34,8 +34,18 @@ int main(int argc, char *argv[]) {
 
     // --- START --- This section incapsulates one step response test
 
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer[80];
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
+    std::string str(buffer);
+
     std::ofstream data_file;
-    data_file.open((std::string)"test_data/" + "step_response_" +  + ".csv");
+    data_file.open((std::string)"test_data/" + "step_response_" + buffer + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
 
     angles_setpoint[0] = 0;
@@ -78,8 +88,8 @@ int main(int argc, char *argv[]) {
         // printf("p_el: %d, U: %d, D: %d\n", p_el, U, D);
         data_file << t << "," << p_az*(L-R) << "," << p_el*(U-D) << "," << angles[0] << "," << angles[1] << std::endl;
 
-        // get_angles is blocking so no need to sleep
-        // sleep(0.01); // TODO make sure interval is long enough
+        // motor commands are blocking so no need to sleep due to "get_angles_100"
+        // sleep(0.01);
     }
 
     U = 0;

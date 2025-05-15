@@ -18,12 +18,12 @@ table = table[:len(table)//5]
 
 fig, ax1 = plt.subplots()
 ax1.set_xlabel("time (s)")
-ax1.set_ylabel("power (0-100)", color="b")
+ax1.set_ylabel("power [%]", color="b")
 ax1.plot(table[:,0],table[:,2], marker="",color="b")
 
 ax2 = ax1.twinx()
 
-ax2.set_ylabel("angle ()", color="r")
+ax2.set_ylabel("angle [degrees]", color="r")
 ax2.plot(table[:,0],table[:,4], marker="",color="r")
 
 
