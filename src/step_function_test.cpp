@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     angles_setpoint[0] = 0;
     angles_setpoint[1] = 45;
     set_angles(angles_setpoint); // goto staring position
-    
+
     double angles[2];
     get_angles(angles);
     printf("Moving to setpoint %.2f, %.2f ...\n", angles_setpoint[0], angles_setpoint[1]);
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     p_el = 100;
     p_az = 100;
     set_motor_power(p_el,p_az); // set power to testing value (100%)
-    
+
     printf("Waiting for 1 second to settle after moving\n");
     sleep(2); // wait for the rotor to settle
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
         data_file << t << "," << p_az*(L-R) << "," << p_el*(U-D) << "," << angles[0] << "," << angles[1] << std::endl;
         sleep(0.01); // TODO make sure interval is long enough
     }
-    
+
     U = 0;
     set_motor_direction(L,R,U,D); // stop the rotor after 5 seconds
     data_file.close();

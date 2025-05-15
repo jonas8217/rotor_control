@@ -8,7 +8,7 @@ void print_help() {
   printf("  set-angles [az] [el]\n");
   printf("  set-power  [az] [el]\n");
   // set-direction
-  // get-config      
+  // get-config
 }
 
 struct termios tty;
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {  // test for commands
         if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "help") == 0) {
             print_help();
-        
+
         } else if (std::strcmp(argv[1], "reset") == 0) {
             if (setup()) return -1;
             basic_message_get_debug(CMD_RESTART_DEVICE);
@@ -93,17 +93,19 @@ int main(int argc, char *argv[]) {
     	print_help();
         double angle_output[2];
 
-        // while (true) {
-        //     unsigned long start =
-        //         std::chrono::system_clock::now().time_since_epoch() /
-        //         std::chrono::milliseconds(1);
-        //     get_angles_100(angle_output);
-        //     printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
-        //     unsigned long now =
-        //         std::chrono::system_clock::now().time_since_epoch() /
-        //         std::chrono::milliseconds(1);
-        //     printf("ms duration: %lu \n", now-start);
-        // }
+        while (true) {
+            unsigned long start =
+                std::chrono::system_clock::now().time_since_epoch() /
+                std::chrono::milliseconds(1);
+            printf("test1\n");
+            get_angles_100(angle_output);
+            printf("test2\n");
+            printf("Motor_1 angle: %.2f, Motor_2 angle: %.2f\n", angle_output[0], angle_output[1]);
+            unsigned long now =
+                std::chrono::system_clock::now().time_since_epoch() /
+                std::chrono::milliseconds(1);
+            printf("ms duration: %lu \n", now-start);
+        }
 
         // double angle_output[2] = {0,0};
         // get_angles(angle_output);
