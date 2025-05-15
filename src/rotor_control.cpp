@@ -58,12 +58,12 @@ const uint8_t MSG_ARRAYS[][13] = {
 
 int setup_USB_UART_connection() {
     SERIAL_PORT = open(PORT, O_RDWR);
-    
+
     // Info from this blog
     // https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/
 
     struct termios* tty = &tty_;
-    
+
     if (SERIAL_PORT < 0) {
         printf("Error %i from open trying to open %s: %s\n", errno, PORT, strerror(errno));
         return -1;
@@ -205,11 +205,10 @@ void basic_message_get_debug(MSG_TYPE type) {
 }
 
 void print_cfg() {
-    printf("Field: %d\n", READ_BUF[1]+256*READ_BUF[2]);
+    printf("Field: %d\n", READ_BUF[1] + 256 * READ_BUF[2]);
     printf("Name: %s\n", std::string((char*)READ_BUF + 3, 32).c_str());
     uint8_t value[4];
-    for (int i = 0; i < 4; i++)
-        value[i] = (READ_BUF + 0x27)[i]; // Value field
+    for (int i = 0; i < 4; i++) value[i] = (READ_BUF + 0x27)[i];  // Value field
     printf("Value: 0x%02x 0x%02x 0x%02x 0x%02x \n", value[0], value[1], value[2], value[3]);
 }
 
