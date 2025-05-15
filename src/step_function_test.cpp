@@ -23,7 +23,7 @@ void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bo
     std::string str(buffer);
 
     std::ofstream data_file;
-    data_file.open((std::string) "test_data/" + buffer + "_Az_" + std::to_string(R) + "_El_" + std::to_string(U) + "_" + std::to_string((int)az_setpoint) + "_" + std::to_string((int)el_setpoint) + ".csv");
+    data_file.open((std::string) "test_data/" + buffer + "_az_" + std::to_string(p_az * (R - L)) + "_el_" + std::to_string(p_el * (U - D)) + "_" + std::to_string((int)az_setpoint) + "_" + std::to_string((int)el_setpoint) + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
 
     set_motor_power(80, 80);      // set initial power to go to starting position
@@ -43,7 +43,7 @@ void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bo
 
     printf("Waiting for 4 second to settle after moving\n");
     sleep(4);  // wait for the rotor to settle
-    printf("Running step response - Set-point_ Az %.2f El %.2f, Power: Az %d El %d\n", az_setpoint, el_setpoint, p_az * (L - R), p_el * (U - D));
+    printf("Running step response. Set-point: Az %.2f El %.2f, Power: Az %d El %d\n", az_setpoint, el_setpoint, p_az * (R - L), p_el * (U - D));
 
     // begin collecting data
     get_angles_100(angles);
@@ -61,7 +61,7 @@ void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bo
         t /= 1000000;
         // printf("Current time t: %f\n", t);
         // printf("p_el: %d, U: %d, D: %d\n", p_el, U, D);
-        data_file << t << "," << p_az * (L - R) << "," << p_el * (U - D) << "," << angles[0] << "," << angles[1] << std::endl;
+        data_file << t << "," << p_az * (R - L) << "," << p_el * (U - D) << "," << angles[0] << "," << angles[1] << std::endl;
 
         // rotor commands are blocking so no need to sleep due to "get_angles_100"
         // sleep(0.01);
