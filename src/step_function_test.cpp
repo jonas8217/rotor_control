@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     time(&rawtime);
     timeinfo = localtime(&rawtime);
 
-    strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
+    strftime(buffer,sizeof(buffer),"%Y_%m_%d_%H_%M_%S",timeinfo);
     std::string str(buffer);
 
     std::ofstream data_file;
