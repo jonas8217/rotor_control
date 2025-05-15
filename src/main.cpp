@@ -13,6 +13,15 @@ void print_help() {
 
 struct termios tty;
 
+bool setup() {
+    SERIAL_PORT = open(PORT, O_RDWR);
+
+    if (setup_USB_UART_connection(&tty) != 0) {
+        return -1;
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     if (argc > 1) {  // test for commands
         if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "help") == 0) {
@@ -20,11 +29,7 @@ int main(int argc, char *argv[]) {
             return 0;
         }
 
-        SERIAL_PORT = open(PORT, O_RDWR);
-
-        if (setup_USB_UART_connection(&tty) != 0) {
-            return -1;
-        }
+        setup();
 
         if (std::strcmp(argv[1], "reset") == 0) {
             basic_message_get_debug(CMD_RESTART_DEVICE);
@@ -79,8 +84,10 @@ int main(int argc, char *argv[]) {
         }
 
     } else if (DO_CONTROL) {
+        setup();
     } else {  // Testing area
-        print_help();
+        // print_help();
+        setup();
         double angle_output[2];
 
         while (true) {
