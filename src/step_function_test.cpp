@@ -35,7 +35,7 @@ void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bo
     get_angles(angles);
     printf("Moving to setpoint %.2f, %.2f ...\n", angles_setpoint[0], angles_setpoint[1]);
     // wait for it to be done moving
-    while (abs(angles[0] - angles_setpoint[0]) > 1 || abs(angles[1] - angles_setpoint[1]) > 1) {
+    while (abs(angles[0] - angles_setpoint[0]) > 0.2 || abs(angles[1] - angles_setpoint[1]) > 0.2) {
         sleep(5);
         get_angles(angles);
         printf("Current position: %.2f,%.2f\n",angles[0], angles[1]);
@@ -70,8 +70,7 @@ void do_step_response(double az_setpoint, double el_setpoint, bool L, bool R, bo
         // sleep(0.01);
     }
 
-    U = 0;
-    set_motor_direction(L,R,U,D); // stop the rotor after 5 seconds
+    set_motor_direction(0,0,0,0); // stop the rotor after 5 seconds
     data_file.close();
 }
 
@@ -93,10 +92,11 @@ int main(int argc, char *argv[]) {
     do_step_response( 0, 90, 0, 0, 0, 1); // Pointing up      , moving forwards (negative elevation)
     do_step_response( 0, 90, 1, 0, 0, 0); // Pointing up      , moving left/clockwise(from above, negative azimuth)
     do_step_response( 0, 90, 0, 1, 0, 0); // Pointing up      , moving right/counter-clockwise(from above, positive azimuth)
-    do_step_response( 0,  0, 0, 0, 1, 0); // Pointing forwards, moving up (positive elevation)
+    // elevation 5 degrees above the horizon to not meet the motor endstop
+    do_step_response( 0,  5, 0, 0, 1, 0); // Pointing forwards, moving up (positive elevation)
     // cannot move downwards
-    do_step_response( 0,  0, 1, 0, 0, 0); // Pointing forwards, moving left/clockwise(from above, negative azimuth)
-    do_step_response( 0,  0, 0, 1, 0, 0); // Pointing forwards, moving right/counter-clockwise(from above, positive azimuth)
+    do_step_response( 0,  5, 1, 0, 0, 0); // Pointing forwards, moving left/clockwise(from above, negative azimuth)
+    do_step_response( 0,  5, 0, 1, 0, 0); // Pointing forwards, moving right/counter-clockwise(from above, positive azimuth)
 
 
     return 0;

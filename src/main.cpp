@@ -20,9 +20,9 @@ int main(int argc, char *argv[]) {
 
         if (setup_USB_UART_connection() != 0) return -1;
 
-        if (std::strcmp(argv[1], "reset") == 0) {
+        if (std::strcmp(argv[1], "restart") == 0) {
             basic_message_get_debug(CMD_RESTART_DEVICE);
-            printf("Reset sent successfully\n");
+            printf("Restart sent successfully\n");
 
         } else if (std::strcmp(argv[1], "read") == 0) {
             double angle_output[2];
