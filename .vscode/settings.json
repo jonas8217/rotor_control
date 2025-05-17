@@ -53,5 +53,6 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     },
-    "C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 1000, AllowShortFunctionsOnASingleLine: false, AccessModifierOffset: -2, SortIncludes: Never}"
+    "C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 1000, AllowShortFunctionsOnASingleLine: false, AccessModifierOffset: -2, SortIncludes: Never}",
+    "ros.distro": "humble"
 }
