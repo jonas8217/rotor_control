@@ -213,7 +213,7 @@ void print_cfg(int field_id) {
 
     printf("Field: %d\n", READ_BUF[1] + 256 * READ_BUF[2]);
     printf("Name: %s\n", std::string((char*)READ_BUF + 3, 32).c_str());
-    if (rotCfgFields[0].dataType == rotCfgDataType::rcdt_float) {
+    if (rotCfgFields[field_id].dataType == rotCfgDataType::rcdt_float) {
         for (int i = 0; i < 4; i++) u_char_float.b[i] = (READ_BUF + 0x27)[i];  // Value field
         printf("Value: %.2f \n", u_char_float.f);
     } else {

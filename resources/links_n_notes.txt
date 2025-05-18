@@ -18,21 +18,9 @@ motor command to action delay:
     ~ 48 ms 
 
 angle boundaries:
-    azimuth:    ?? 
-        Field: 2
-        Name: motor_0_min_angle
-        Value: 0x00 0x00 0x34 0xc3
-        Field: 3
-        Name: motor_0_max_angle
-        Value: 0x00 0x00 0x07 0x44
-    
-    elevation:  ??
-        Field: 25
-        Name: motor_1_min_angle
-        Value: 0x00 0x00 0xa0 0xc0
-        Field: 26
-        Name: motor_1_max_angle
-        Value: 0x00 0x00 0x39 0x43
+    azimuth: [-180.00; 540.00] (in configuration)
+    elevation: [-5.00; 185.00] (in configuration)
+    Unsure if these values are representative for the actual range of the rotor
 
 angle offsets:
     azimuth:    
