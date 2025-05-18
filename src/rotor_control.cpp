@@ -292,7 +292,7 @@ void stop_rotor() {
 void response_time_stats() {
 }
 
-void set_motor_direction(bool L, bool R, bool U, bool D) {
+void set_motor_direction(int RL, int UD) {
     // sets the direction of the motor in which to apply the power setting from CMD_POWER
 
     // mmCmdStop = 0x00
@@ -311,6 +311,9 @@ void set_motor_direction(bool L, bool R, bool U, bool D) {
     // L  R  U  D
     // Either left or right and either up or down, alternatively all zero for stop
 
+    bool L, R, U, D;
+    R = RL > 0; L = RL < 0;
+    U = UD > 0; D = UD < 0;
     if (L && R || U && R) {
         printf("Cannot command opposite directions simultaneously!");
         return;
@@ -338,19 +341,27 @@ void set_motor_power(int p1, int p2) {
     }
 }
 
-int sign(double val) {
-    if (val > 0) {
-        return 1;
-    } else if (val < 0) {
-        return -1;
-    }
-    return 0;
+template <typename T>
+int sign(T val) {
+    return (T(0) < val) - (val < T(0));
 }
 
-void generate_motor_commands(double control_input[2], int* direction_command, int* motor_power) {  // TODO create other functions to validate currently chosen input/output format
 
-    direction_command[0] = sign(control_input[0]);
-    direction_command[1] = sign(control_input[1]);
-    motor_power[0] = std::abs(control_input[0]);
-    motor_power[1] = std::abs(control_input[1]);
+void command_motors(double control_input[2]) {
+    static int last_directions[2] = {0, 0};
+    static int last_power[2] = {0, 0};
+
+    // minimize commands sendt to the rotor controller
+    if (last_directions[0] != sign(control_input[0]) || last_directions[1] != sign(control_input[1])) { 
+        set_motor_direction(sign(control_input[0]),sign(control_input[1]));
+        last_directions[0] = sign(control_input[0]);
+        last_directions[1] = sign(control_input[1]);
+    }
+    if (last_power[0] != abs(control_input[0]) || last_power[1] != abs(control_input[1])) {
+        set_motor_power(abs(control_input[0]),abs(control_input[1]));
+        last_power[0] = abs(control_input[0]);
+        last_power[1] = abs(control_input[1]);
+    }
+
+
 }

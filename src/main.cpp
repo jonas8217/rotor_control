@@ -50,17 +50,17 @@ int main(int argc, char *argv[]) {
             set_motor_power(p1, p2);
             printf("Power set successfully\n");
         }
-        // This command has the possibilty of running the rotor against one of the motors internal endstops, this may lock up one of the two motors or possibly damage it
+        // This command has the possibilty of running the rotor against one of the motors internal endstops, this may lock up one of the two motors or possibly damage the motors
         else if (std::strcmp(argv[1], "set-direction") == 0) {
             if (argc != 4) {
                 printf("Movement duration not provided, direction not set\n");
             }
-            int d = std::stoi(argv[2]);                           // movement direction Left:0 Right:1 Up:2 Down:3
-            double t = std::stod(argv[3]);                        // time on seconds (decimal allowed)
-            set_motor_direction(d == 0, d == 1, d == 2, d == 3);  // only one direction per message
+            int d = std::stoi(argv[2]);             // movement direction Left:0 Right:1 Up:2 Down:3
+            double t = std::stod(argv[3]);          // time on seconds (decimal allowed)
+            set_motor_direction(d*2-1, (d-2)*2-1);  // only one direction per message
             printf("Direction set successfully, running for %.3f\n", t);
             usleep((int)t * 1000000);         // Microsecond sleep
-            set_motor_direction(0, 0, 0, 0);  // Stop the motors
+            set_motor_direction(0, 0);  // Stop the motors
             printf("Rotor stopped\n");
 
         } else if (std::strcmp(argv[1], "get-config") == 0) {
