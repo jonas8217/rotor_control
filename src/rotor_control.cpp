@@ -315,7 +315,7 @@ void set_motor_direction(int RL, int UD) {
     R = RL > 0; L = RL < 0;
     U = UD > 0; D = UD < 0;
     if (L && R || U && D) {
-        printf("Cannot command opposite directions simultaneously! Stopping.");
+        printf("Cannot command opposite directions simultaneously! Stopping.\n");
         L, R, U, D = false;
     }
 

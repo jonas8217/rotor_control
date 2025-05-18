@@ -22,7 +22,7 @@ void do_circle_test_power(double az_startpoint, double el_startpoint, int power,
 
     std::ofstream data_file;
 
-    data_file.open((std::string) "test_data/" + buffer + "_" + std::to_string((int)az_startpoint) + "_" + std::to_string((int)el_startpoint) + "_" + std::to_string((int)period) + "_" + std::to_string(power) + ".csv");
+    data_file.open((std::string) "test_data/circle_" + buffer + "_T_" + std::to_string((int)period) + "_Pow_" + std::to_string(power) + "_" + std::to_string((int)az_startpoint) + "_" + std::to_string((int)el_startpoint) + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
     
     set_motor_power(80, 80);        // set initial power to go to starting position (limit wobble of the dish assembly)
@@ -88,7 +88,7 @@ void do_step_response(double az_startpoint, double el_startpoint, int RL_inp, in
     std::string str(buffer);
 
     std::ofstream data_file;
-    data_file.open((std::string) "test_data/" + buffer + "_az_" + std::to_string(RL_inp) + "_el_" + std::to_string(UD_inp) + "_" + std::to_string((int)az_startpoint) + "_" + std::to_string((int)el_startpoint) + ".csv");
+    data_file.open((std::string) "test_data/step_" + buffer + "_az_" + std::to_string(RL_inp) + "_el_" + std::to_string(UD_inp) + "_" + std::to_string((int)az_startpoint) + "_" + std::to_string((int)el_startpoint) + ".csv");
     data_file << "t,p_az,p_el,a_az,a_el" << std::endl;
 
     set_motor_power(80, 80);      // set initial power to go to starting position
