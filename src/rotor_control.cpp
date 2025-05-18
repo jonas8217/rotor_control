@@ -347,7 +347,7 @@ int sign(T val) {
 }
 
 
-void command_motors(double control_input[2]) {
+void command_motors(int control_input[2]) {
     static int last_directions[2] = {0, 0};
     static int last_power[2] = {0, 0};
 

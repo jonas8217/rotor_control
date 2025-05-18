@@ -5,7 +5,7 @@
 #include <chrono>
 #include <math.h>
 
-void do_circle_test_power(double az_startpoint, double el_startpoint, double period = 5, int power, double run_time = 10.0) {
+void do_circle_test_power(double az_startpoint, double el_startpoint, int power, double period = 5, double run_time = 10.0) {
     double angles_startpoint[2];
     angles_startpoint[0] = az_startpoint;
     angles_startpoint[1] = el_startpoint;
@@ -42,7 +42,7 @@ void do_circle_test_power(double az_startpoint, double el_startpoint, double per
     
     printf("Waiting for 4 second to settle after moving\n");
     sleep(4);  // wait for the rotor to settle
-    printf("Running circle test. Starting-point: Az %.2f El %.2f, period: %.2f [m], Power: %d [%]\n", az_startpoint, el_startpoint, period, power);
+    printf("Running circle test. Starting-point: Az %.2f El %.2f, period: %.2f [m], Power: %d [%%]\n", az_startpoint, el_startpoint, period, power);
     
     // begin collecting data
     get_angles_100(angles);
@@ -55,7 +55,7 @@ void do_circle_test_power(double az_startpoint, double el_startpoint, double per
     double motor_commands[2] = {0, 0};
     while (t < run_time) {
         get_angles_100(angles);
-        double control_input[2] = {(int)(power*cos(t * 2 * M_PI / period)), (int)(power*sin(t * 2 * M_PI / period))};
+        int control_input[2] = {(int)(power*cos(t * 2 * M_PI / period)), (int)(power*sin(t * 2 * M_PI / period))};
         command_motors(control_input);
         
         // Time is taken after angles are retrieved and motors are commanded from the rotor (2 x 16 ms) , may lead to inaccurate delays
@@ -147,11 +147,11 @@ int main(int argc, char *argv[]) {
     
     // // elevation 5 degrees above the horizon to not meet the motor endstop
     // do_step_response( 0,  5,      0,    100);    // Pointing forwards, moving up (positive elevation)
-    // // do_step_response( 0,  5,      0,   -100)     Cannot move downwards. Do not run this
+    // // do_step_response( 0,  5,      0,   50-100)     Cannot move downwards. Do not run this
     // do_step_response( 0,  5,   -100,      0);    // Pointing forwards, moving left/clockwise(from above, negative azimuth)
     // do_step_response( 0,  5,    100,      0);    // Pointing forwards, moving right/counter-clockwise(from above, positive azimuth)
 
-    do_circle_test_power(0, 70, 10, 50);
+    do_circle_test_power(0, 70, 50, 10);
 
     return 0;
 }
