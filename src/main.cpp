@@ -55,9 +55,12 @@ int main(int argc, char *argv[]) {
             if (argc != 4) {
                 printf("Movement duration not provided, direction not set\n");
             }
-            int d = std::stoi(argv[2]);             // movement direction Left:0 Right:1 Up:2 Down:3
+            int d = std::stoi(argv[2]);             // movement direction Right:0 Left:1 Up:2 Down:3
             double t = std::stod(argv[3]);          // time on seconds (decimal allowed)
-            set_motor_direction(d*2-1, (d-2)*2-1);  // only one direction per message
+            
+            int RL = abs(d*2-1) == 1 ? d*2-1 : 0;
+            int UD = abs((d-2)*2-1) == 1 ? (d-2)*2-1 : 0;
+            set_motor_direction(RL, UD);  // only one direction per message
             printf("Direction set successfully, running for %.3f\n", t);
             usleep((int)t * 1000000);         // Microsecond sleep
             set_motor_direction(0, 0);  // Stop the motors
