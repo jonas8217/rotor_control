@@ -8,15 +8,32 @@ github.com/jaidenfe/rot2proG
 https://ryeng.name/blog/3
 
 angular rates at 100% power:
-azimuth:    
-elevation:  
+    azimuth:    ~1.5 degrees/second (motor_0_max_power = 0x32 0x00 0x00 0x00, motor_0_min_power = 0x32 0x00 0x00 0x00) 
+    elevation:  ~1.5 degrees/second (motor_1_max_power = 0x32 0x00 0x00 0x00, motor_1_min_power = 0x32 0x00 0x00 0x00)
 
 response time/message rate:
-16 ms
+    16 ms
 
 motor command to action delay:
-~ 48 ms 
+    ~ 48 ms 
+
+angle boundaries:
+    azimuth:    ?? 
+        Field: 2
+        Name: motor_0_min_angle
+        Value: 0x00 0x00 0x34 0xc3
+        Field: 3
+        Name: motor_0_max_angle
+        Value: 0x00 0x00 0x07 0x44
+    
+    elevation:  ??
+        Field: 25
+        Name: motor_1_min_angle
+        Value: 0x00 0x00 0xa0 0xc0
+        Field: 26
+        Name: motor_1_max_angle
+        Value: 0x00 0x00 0x39 0x43
 
 angle offsets:
-azimuth:    
-elevation:  
+    azimuth:    
+    elevation:  

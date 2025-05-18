@@ -204,19 +204,30 @@ void basic_message_get_debug(MSG_TYPE type) {
     }
 }
 
-void print_cfg() {
+union {
+  float f;
+  u_char b[4];
+} u_char_float;
+
+void print_cfg(int field_id) {
+
     printf("Field: %d\n", READ_BUF[1] + 256 * READ_BUF[2]);
     printf("Name: %s\n", std::string((char*)READ_BUF + 3, 32).c_str());
-    uint8_t value[4];
-    for (int i = 0; i < 4; i++) value[i] = (READ_BUF + 0x27)[i];  // Value field
-    printf("Value: 0x%02x 0x%02x 0x%02x 0x%02x \n", value[0], value[1], value[2], value[3]);
+    if (rotCfgFields[0].dataType == rotCfgDataType::rcdt_float) {
+        for (int i = 0; i < 4; i++) u_char_float.b[i] = (READ_BUF + 0x27)[i];  // Value field
+        printf("Value: %.2f \n", u_char_float.f);
+    } else {
+        uint8_t value[4];
+        for (int i = 0; i < 4; i++) value[i] = (READ_BUF + 0x27)[i];  // Value field
+        printf("Value: 0x%02x 0x%02x 0x%02x 0x%02x \n", value[0], value[1], value[2], value[3]);
+    }
 }
 
-void get_configuration(int index = -1) {  // TODO load into the structs defined in settings_params_legacy (or a modification thereof)
+void get_configuration(int field_id = -1) {  // TODO load into the structs defined in settings_params_legacy (or a modification thereof)
     // ROT_FRAM_PARAMS rot_frame_params;
 
     setup_write_buffer_for_input(CMD_CFG_GET);
-    if (index == -1) {
+    if (field_id == -1) {
         for (int i = 0; i < sizeof(rotCfgFields); i++) {  // TODO check sizeof or use "max_field_id" as acquired from the control box
             WRITE_BUF[1] = i % 256;
             WRITE_BUF[2] = i / 256;
@@ -225,10 +236,11 @@ void get_configuration(int index = -1) {  // TODO load into the structs defined 
             // save to file?
         }
     } else {
-        WRITE_BUF[1] = index % 256;
-        WRITE_BUF[2] = index / 256;
+        WRITE_BUF[1] = field_id % 256;
+        WRITE_BUF[2] = field_id / 256;
         send_recv(CMD_CFG_GET, MAX_RETURN_MSG_LEN);
-        print_cfg();
+        print_cfg(field_id);
+
     }
 }
 
@@ -314,10 +326,6 @@ void set_motor_direction(int RL, int UD) {
     bool L, R, U, D;
     R = RL > 0; L = RL < 0;
     U = UD > 0; D = UD < 0;
-    if (L && R || U && D) {
-        printf("Cannot command opposite directions simultaneously! Stopping.\n");
-        L, R, U, D = false;
-    }
 
     setup_write_buffer_for_input(CMD_MOTORS);
 

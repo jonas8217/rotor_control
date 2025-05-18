@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
     // do_step_response( 0,  5,   -100,      0);    // Pointing forwards, moving left/clockwise(from above, negative azimuth)
     // do_step_response( 0,  5,    100,      0);    // Pointing forwards, moving right/counter-clockwise(from above, positive azimuth)
 
-    do_circle_test_power(0, 70, 50, 10);
+    do_circle_test_power(0, 70, 80, 8, 30);
 
     return 0;
 }
