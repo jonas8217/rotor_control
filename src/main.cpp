@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
             int d = std::stoi(argv[2]);             // movement direction Right:0 Left:1 Up:2 Down:3
             double t = std::stod(argv[3]);          // time on seconds (decimal allowed)
             
-            int RL = abs(d*2-1) == 1 ? d*2-1 : 0;
-            int UD = abs((d-2)*2-1) == 1 ? (d-2)*2-1 : 0;
+            int RL = abs(1-d*2) == 1 ? 1-d*2 : 0;
+            int UD = abs(1-(d-2)*2) == 1 ? 1-(d-2)*2 : 0;
             set_motor_direction(RL, UD);  // only one direction per message
             printf("Direction set successfully, running for %.3f\n", t);
             usleep((int)t * 1000000);         // Microsecond sleep
