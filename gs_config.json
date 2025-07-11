@@ -1,5 +1,8 @@
 {
     "latitude" : 67.8755167,
     "longitude" : 21.0629957,
-    "altitude"  : 462.9
+    "altitude"  : 462.9,
+    "azimuth_offset" : 0,
+    "tilt" : 0,
+    "titl_axis" : 0
 }

@@ -71,8 +71,8 @@ def aa2R(axis,angle): # angle axis to rotation matrix
     v = axis/np.linalg.norm(axis)
     return np.eye(3) + scew(v) * np.sin(angle) + (1-np.cos(angle)) * scew(v) @ scew(v)
 
-def world2gs(lat : float, long : float): # rotation matrix from geographic coordinate system world frame to ground station frame
-    return R_z(long*np.pi/180) @ R_y(-lat*np.pi/180) @ aa2R([1,1,1],np.pi*2/3) @ R_z(90*np.pi/180)
+def world2gs(lat : float, long : float, az_offset: float = 0): # rotation matrix from geographic coordinate system world frame to ground station frame
+    return R_z(long*np.pi/180) @ R_y(-lat*np.pi/180) @ aa2R([1,1,1],np.pi*2/3) @ R_z(90*np.pi/180) @ R_z(-az_offset*np.pi/180)
     
 
 def main(argv : list[str]):
@@ -85,6 +85,7 @@ def main(argv : list[str]):
     lat_gs = data["latitude"]
     long_gs = data["longitude"]
     alt_gs = data["altitude"]
+    az_offset = data["azimuth_offset"]
 
     # Get the balloon coordinates from the input arguments
     geo_b = (float(argv[1]),float(argv[2]))
@@ -104,7 +105,7 @@ def main(argv : list[str]):
     v_point = v_point/np.linalg.norm(v_point)
 
     # get the pointing vector in the ground station frame
-    gs_v_point = np.transpose(world2gs(lat_gs,long_gs)) @ v_point
+    gs_v_point = np.transpose(world2gs(lat_gs,long_gs,az_offset)) @ v_point
 
 
     # calculate the azimuth and elevation from the vector in the ground station frame
