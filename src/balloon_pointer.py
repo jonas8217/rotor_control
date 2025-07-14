@@ -61,22 +61,27 @@ R_z = lambda a: np.array([
 ])
 
 # scew-matrix operator
-scew = lambda v: np.array([
-    [    0,-v[2], v[1]],
-    [ v[2],    0,-v[0]],
-    [-v[1], v[0],    0]
+# scew = lambda v: np.array([
+#     [    0,-v[2], v[1]],
+#     [ v[2],    0,-v[0]],
+#     [-v[1], v[0],    0]
+# ])
+
+# def aa2R(axis,angle): # angle axis to rotation matrix
+#     v = axis/np.linalg.norm(axis)
+#     return np.eye(3) + scew(v) * np.sin(angle) + (1-np.cos(angle)) * scew(v) @ scew(v)
+
+xyz2yzx = np.array([
+    [0,0,1],
+    [1,0,0],
+    [0,1,0]
 ])
 
-def aa2R(axis,angle): # angle axis to rotation matrix
-    v = axis/np.linalg.norm(axis)
-    return np.eye(3) + scew(v) * np.sin(angle) + (1-np.cos(angle)) * scew(v) @ scew(v)
-
 def world2gs(lat : float, long : float, az_offset: float = 0): # rotation matrix from geographic coordinate system world frame to ground station frame
-    return R_z(long*np.pi/180) @ R_y(-lat*np.pi/180) @ aa2R([1,1,1],np.pi*2/3) @ R_z(90*np.pi/180) @ R_z(-az_offset*np.pi/180)
+    return R_z(long*np.pi/180) @ R_y(-lat*np.pi/180) @ xyz2yzx @ R_z(90*np.pi/180) @ R_z(-az_offset*np.pi/180)
     
 
 def main(argv : list[str]):
-
     # load ground station config
     fname = "gs_config.json"
     with open(fname, "r") as f:
