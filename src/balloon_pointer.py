@@ -2,9 +2,13 @@ import sys
 import numpy as np
 import json
 
-# Esrange hill (radar hill??)
-lat_gs,long_gs = 67.8755167, 21.0629957
-alt_gs = 462.9
+# check machanical pointing
+# check rf pointing
+# correct for tilt (WIP)
+# get pointing test done, figure out the formula for the errors etc.??
+# -> design method for pointing (laser pointer)
+
+# lesson learned: inventory
 
 def earth_R(lat: float): # input radians
     R_eq = 6378137 # radius at equator
@@ -32,6 +36,9 @@ def vec2geo(v):
 def vec2AzEl(v):
     res = vec2geo(v)
     return (-res[1], res[0])
+
+def vec2XY():
+    pass
 
 def gcd_arc(geo1 : tuple[float, float], geo2 : tuple[float, float]):
     v1 = geo2vec(*geo1)

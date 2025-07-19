@@ -11,21 +11,19 @@ void print_help() {
     // get-config
 }
 
-void parse_input(std::string inp) {
-    unsigned idx = inp.find(" ");
-    std::string strNew = inp.substr (0,idx);
-}
-
 int main(int argc, char *argv[]) {
+    bool do_control = false;
     if (argc > 1) {  // test for commands
+        
+        if (std::strcmp(argv[1], "do-control") == 0) {
+            do_control = true;
+        } else {
+            if (setup_USB_UART_connection() != 0) return -1;
+        }
         if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "help") == 0) {
             print_help();
             return 0;
-        }
-
-        if (setup_USB_UART_connection() != 0) return -1;
-
-        if (std::strcmp(argv[1], "restart") == 0) {
+        } else if (std::strcmp(argv[1], "restart") == 0) {
             basic_message_get_debug(CMD_RESTART_DEVICE);
             printf("Restart sent successfully\n");
 
@@ -46,7 +44,7 @@ int main(int argc, char *argv[]) {
             double angles[2];
             angles[0] = std::stod(argv[2]);
             angles[1] = std::stod(argv[3]);
-            set_angles(angles);
+            set_angles_100(angles);
             printf("Angle %.2f %.2f set successfully\n", angles[0], angles[1]);
 
         } else if (std::strcmp(argv[1], "set-power") == 0) {
@@ -79,20 +77,26 @@ int main(int argc, char *argv[]) {
         } else {
             print_help();
         }
+    }
 
-    } else if (DO_CONTROL) {
+    if (DO_CONTROL || do_control) {
         if (setup_USB_UART_connection() != 0) return -1;
         
         bool stop = false;
         while (!stop) {
             std::string inp_buff;
             std::getline(std::cin, inp_buff);
+            unsigned idx = inp_buff.find(" ");
+            std::string az = inp_buff.substr(0, idx);
+            std::string el = inp_buff.substr(idx+1, inp_buff.length()-(idx+1));
 
-            
+            double angles[2];
+            angles[0] = std::stod(az);
+            angles[1] = std::stod(el);
+            set_angles(angles);
+            printf("Angle %.2f %.2f set successfully\n", angles[0], angles[1]);
         }
-
-
-    } else {  // Testing area
+    } else if (argc == 1) {  // Testing area
         // print_help();
         if (setup_USB_UART_connection() != 0) return -1;
         double angle_output[2];
