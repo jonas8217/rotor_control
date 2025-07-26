@@ -52,11 +52,12 @@ void do_circle_test_power(double az_startpoint, double el_startpoint, int power,
     // data_file << 0 << "," << 0 << "," << 0 << "," << angles[0] << "," << angles[1] << std::endl;
     
     // command rotor and collect data points as fast as possible
+    double angle_output[2];
     double motor_commands[2] = {0, 0};
     while (t < run_time) {
         get_angles_100(angles);
         int control_input[2] = {(int)(power*cos(t * 2 * M_PI / period)), (int)(power*sin(t * 2 * M_PI / period))};
-        command_motors(control_input);
+        command_motors(control_input,angle_output);
         
         // Time is taken after angles are retrieved and motors are commanded from the rotor (2 x 16 ms) , may lead to inaccurate delays
         t = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - t_start).count();

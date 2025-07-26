@@ -261,16 +261,20 @@ void get_configuration(int field_id = -1) {  // TODO load into the structs defin
 
     }
 }
-
-void get_angles(double* angle_output) {
-    send_recv(CMD_GET_MOTOR_ANGLES, NOMINAL_RETURN_MSG_BYTES);
-
+void decode_angles(double* angle_output) {
     // angle = StrToInt(receivedAngle) * divisor - 360 * divisor
     int a1 = READ_BUF[1 + 0] * 1000 + READ_BUF[1 + 1] * 100 + READ_BUF[1 + 2] * 10 + READ_BUF[1 + 3] * 1;  // convert to integer
     int a2 = READ_BUF[6 + 0] * 1000 + READ_BUF[6 + 1] * 100 + READ_BUF[6 + 2] * 10 + READ_BUF[6 + 3] * 1;
     angle_output[0] = a1 / (double)READ_BUF[5] - 360.0;  // do the math
     angle_output[1] = a2 / (double)READ_BUF[10] - 360.0;
 }
+
+void get_angles(double* angle_output) {
+    send_recv(CMD_GET_MOTOR_ANGLES, NOMINAL_RETURN_MSG_BYTES);
+
+    decode_angles(angle_output);
+}
+
 
 void get_angles_100(double* angle_output) {  // unlike in CMD_GET_MOTOR_ANGLES the devisor is set to a constant 100, this makes room for one more byte of data for the angles
 
@@ -399,7 +403,7 @@ int sign(T val) {
 }
 
 
-void command_motors(int control_input[2]) {
+void command_motors(int control_input[2], double* angle_output) {
     static int last_directions[2] = {0, 0};
     static int last_power[2] = {0, 0};
 
@@ -413,5 +417,26 @@ void command_motors(int control_input[2]) {
         set_motor_power(abs(control_input[0]),abs(control_input[1]));
         last_power[0] = abs(control_input[0]);
         last_power[1] = abs(control_input[1]);
+        decode_angles(angle_output);
+    }
+}
+
+void control_step(double reference[2], double value[2], double output[2], double dt) {
+    static double prev_error[2] = {value[0],value[1]};
+    double Kp = 1;
+    double Kd = 0.01;
+
+    for (int i = 0; i < 2; i++) {
+        double error = reference[i] - value[0];
+        double error_dot = 0;
+        if (dt != 0) {
+            double error_dot = (error - prev_error[i]) / dt;
+        }
+
+        double u = Kp * error + Kd * error_dot;
+
+        // 1.5m/s = 100%
+        output[i] = u * (int) 100 / 1.5;
+        prev_error[i] = error;
     }
 }

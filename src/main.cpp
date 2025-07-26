@@ -1,5 +1,8 @@
 #include "rotor_control.cpp"
 
+#include <thread>
+#include <mutex>
+
 void print_help() {
     printf("Commands:\n");
     printf("  restart\n");
@@ -11,19 +14,50 @@ void print_help() {
     // get-config
 }
 
+
+volatile double angles_reference_input[2] = {0,0};
+volatile bool stop = false;
+std::mutex m;
+
+void get_reference_input() {
+    double angles[2] = {0,0};
+    while (true) {
+        std::string inp_buff;
+        std::getline(std::cin, inp_buff);
+        if (inp_buff.find("stop") == 0) {
+            stop = true;
+            return;
+        }
+        unsigned idx = inp_buff.find(" ");
+        std::string X = inp_buff.substr(0, idx);
+        std::string Y = inp_buff.substr(idx+1, inp_buff.length()-(idx+1));
+        try {
+            angles[0] = std::stod(X);
+            angles[1] = std::stod(Y);
+            {
+                const std::lock_guard<std::mutex> lock(m);
+                angles_reference_input[0] = angles[0];
+                angles_reference_input[1] = angles[1];
+            }
+        } catch (std::invalid_argument& e) {
+            std::cout << "Incorrect angle input format, needs to be \"X Y\" where X and Y are ascii numbers." << std::endl;
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
     bool do_control = false;
     if (argc > 1) {  // test for commands
-        
         if (std::strcmp(argv[1], "do-control") == 0) {
             do_control = true;
+        } else if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "help") == 0) {
+            print_help();
+            return 0;
         } else {
             if (setup_USB_UART_connection() != 0) return -1;
         }
-        if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "help") == 0) {
-            print_help();
-            return 0;
-        } else if (std::strcmp(argv[1], "restart") == 0) {
+
+        if (std::strcmp(argv[1], "restart") == 0) {
             basic_message_get_debug(CMD_RESTART_DEVICE);
             printf("Restart sent successfully\n");
 
@@ -74,7 +108,7 @@ int main(int argc, char *argv[]) {
                 printf("missing config field value\n");
             }
             get_configuration(std::stoi(argv[2]));
-        } else {
+        } else if ((std::strcmp(argv[1], "-h") != 0 && std::strcmp(argv[1], "help") != 0)) {
             print_help();
         }
     }
@@ -82,20 +116,29 @@ int main(int argc, char *argv[]) {
     if (DO_CONTROL || do_control) {
         if (setup_USB_UART_connection() != 0) return -1;
         
-        bool stop = false;
+        double angles[2] = {0,0};
+        double angles_old[2] = {0,0};
+        std::thread thread(get_reference_input);
         while (!stop) {
-            std::string inp_buff;
-            std::getline(std::cin, inp_buff);
-            unsigned idx = inp_buff.find(" ");
-            std::string az = inp_buff.substr(0, idx);
-            std::string el = inp_buff.substr(idx+1, inp_buff.length()-(idx+1));
+            {
+                const std::lock_guard<std::mutex> lock(m);
+                angles[0] = angles_reference_input[0];
+                angles[1] = angles_reference_input[1];
+            }
+            if (angles_old[0] != angles[0] || angles_old[1] != angles[1]) {
+                angles_old[0] = angles[0];
+                angles_old[1] = angles[1];
 
-            double angles[2];
-            angles[0] = std::stod(az);
-            angles[1] = std::stod(el);
-            set_angles(angles);
-            printf("Angle %.2f %.2f set successfully\n", angles[0], angles[1]);
+                set_angles(angles);
+
+                printf("Angle %.2f %.2f set successfully\n", angles_reference_input[0], angles_reference_input[1]);
+            } 
+            else {
+                usleep(10000);
+            }
         }
+        thread.join();
+
     } else if (argc == 1) {  // Testing area
         // print_help();
         if (setup_USB_UART_connection() != 0) return -1;
